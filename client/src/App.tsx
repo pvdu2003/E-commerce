@@ -1,9 +1,10 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./pages/auth/Signin";
 import SignUp from "./pages/auth/Signup";
+import Home from "./pages/Home";
 import { useAuthContext } from "./contexts/AuthContext";
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/login" element={authUser ? <SignUp /> : <Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Home />} />
       </Routes>
       <ToastContainer />
     </>
