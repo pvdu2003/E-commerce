@@ -34,4 +34,7 @@ export class CreateUserDto {
 
   @IsOptional()
   dob?: Date;
+
+  @IsString()
+  gender: string;
 }

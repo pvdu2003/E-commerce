@@ -26,6 +26,8 @@ export class User {
 
   @Prop()
   address: string;
+  @Prop()
+  gender: string;
 
   @Prop()
   dob: Date;

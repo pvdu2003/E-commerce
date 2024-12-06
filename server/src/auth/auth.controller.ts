@@ -15,9 +15,13 @@ export class AuthController {
 
   @Post('signin')
   async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
-    const user = await this.authService.login(loginUserDto);
-    if (user) {
-      return { message: 'Login successful', user };
+    const response = await this.authService.login(loginUserDto);
+    if (response) {
+      return {
+        message: 'Login successful',
+        user: response.user,
+        token: response.accessToken,
+      };
     } else {
       return { message: 'Invalid credentials', statusCode: 401 };
     }
