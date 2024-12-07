@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { HomeModule } from './home/home.module';
 import { Book, BookSchema } from './schemas/book.schema';
 import { Category, CategorySchema } from './schemas/category.schema';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { Category, CategorySchema } from './schemas/category.schema';
     ]),
     AuthModule,
     HomeModule,
+    CategoryModule,
   ],
 })
 export class AppModule {}

@@ -42,7 +42,7 @@ function Signin() {
     const { username, password } = formData;
     try {
       const resp = await login(username, password);
-      if (resp.message) {
+      if (resp.message !== "Login successful") {
         toast.error(resp.message);
       } else {
         sessionStorage.setItem("user", JSON.stringify(resp.user));

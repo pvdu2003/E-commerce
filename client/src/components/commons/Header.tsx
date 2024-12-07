@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -10,9 +11,12 @@ import {
   Box,
 } from "@mui/material";
 import { ArrowDropDown } from "@mui/icons-material";
-
+import SearchIcon from "@mui/icons-material/Search";
+import PersonIcon from "@mui/icons-material/Person";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 interface Category {
-  id: number;
+  _id: string;
   name: string;
 }
 
@@ -32,12 +36,12 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
   };
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar position="static">
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton href="/" edge="start" color="inherit">
             <img
-              src="/APlusBook_logo.png"
+              src="/imgs/APlusBook_logo.png"
               alt="A Plus Book Logo"
               style={{ width: 100, height: 60 }}
             />
@@ -55,9 +59,9 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
             onClose={handleClose}
           >
             {categories.map((category) => (
-              <MenuItem key={category.id} onClick={handleClose}>
+              <MenuItem key={category._id} onClick={handleClose}>
                 <a
-                  href={`/category/${category.id}`}
+                  href={`/category/${category._id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   {category.name}
@@ -80,20 +84,18 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
             size="small"
             sx={{ borderRadius: "20px", mr: 1 }}
           />
-          <IconButton type="submit" color="inherit">
-            <i className="fas fa-magnifying-glass"></i>
-          </IconButton>
+          <SearchIcon type="submit" color="inherit"></SearchIcon>
         </form>
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton href="/user/profile" color="inherit">
-            <i className="fas fa-user"></i>
+          <IconButton component={Link} to="/user/profile" color="inherit">
+            <PersonIcon />
           </IconButton>
-          <IconButton href="/announcement/list" color="inherit">
-            <i className="fas fa-bell"></i>
+          <IconButton component={Link} to="/announcement/list" color="inherit">
+            <NotificationsIcon />
           </IconButton>
-          <IconButton href="/cart/list" color="inherit">
-            <i className="fas fa-cart-shopping"></i>
+          <IconButton component={Link} to="/cart/list" color="inherit">
+            <ShoppingCartIcon />
           </IconButton>
         </Box>
       </Toolbar>
