@@ -37,21 +37,21 @@
   color: #07689f !important;
 }
 .pagination .page-link {
-  color: #07689f; /* Set the desired color */
+  color: #07689f;
 }
 
 .pagination .page-item.active .page-link {
-  background-color: #07689f; /* Set the desired background color */
-  border-color: #07689f; /* Set the desired border color */
-  color: #ffffff; /* Set the desired text color */
+  background-color: #07689f;
+  border-color: #07689f;
+  color: #ffffff;
 }
 
 .pagination .page-link:hover {
-  color: #cce4f1; /* Set the desired hover color */
+  color: #cce4f1;
 }
 
 .pagination .page-item.disabled .page-link {
-  opacity: 0.5; /* Set the desired opacity for disabled links */
+  opacity: 0.5;
 }
 /* Hide the up/down buttons in the quantity input field */
 input[type="number"]::-webkit-inner-spin-button,
@@ -62,4 +62,5 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: none;
 }
