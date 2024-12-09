@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -18,7 +18,9 @@ const App: React.FC = () => {
       <Routes>
         <Route
           path="/login"
-          element={<Layout>{authUser ? <Home /> : <Login />}</Layout>}
+          element={
+            <Layout>{authUser ? <Navigate to="/" /> : <Login />}</Layout>
+          }
         />
         <Route
           path="/signup"
@@ -30,11 +32,17 @@ const App: React.FC = () => {
         />
         <Route
           path="/"
-          element={<Layout>{authUser ? <Home /> : <Login />}</Layout>}
+          element={
+            <Layout>{authUser ? <Home /> : <Navigate to={"/login"} />}</Layout>
+          }
         />
         <Route
           path="/category/:id"
-          element={<Layout>{authUser ? <Category /> : <Login />}</Layout>}
+          element={
+            <Layout>
+              {authUser ? <Category /> : <Navigate to={"/login"} />}
+            </Layout>
+          }
         />
       </Routes>
       <ToastContainer />
