@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -26,7 +26,9 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ categories }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const navigate = useNavigate();
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -34,9 +36,13 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+  const isButtonDisabled = searchTerm.trim().length === 0;
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" className="px-5">
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton href="/" edge="start" color="inherit">
@@ -50,6 +56,7 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
             color="inherit"
             onClick={handleMenuClick}
             endIcon={<ArrowDropDown />}
+            sx={{ textTransform: "capitalize" }}
           >
             Categories
           </Button>
@@ -59,13 +66,14 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
             onClose={handleClose}
           >
             {categories.map((category) => (
-              <MenuItem key={category._id} onClick={handleClose}>
-                <a
-                  href={`/category/${category._id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  {category.name}
-                </a>
+              <MenuItem
+                key={category._id}
+                onClick={() => {
+                  handleClose();
+                  navigate(`/category/${category._id}`);
+                }}
+              >
+                {category.name}
               </MenuItem>
             ))}
           </Menu>
@@ -82,9 +90,30 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
             placeholder="Search books here"
             fullWidth
             size="small"
-            sx={{ borderRadius: "20px", mr: 1 }}
+            value={searchTerm}
+            onChange={handleInputChange}
+            sx={{
+              borderRadius: "20px",
+              mr: 1,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fff",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fff",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fff",
+                },
+                "& input": {
+                  color: "#fff",
+                },
+              },
+            }}
           />
-          <SearchIcon type="submit" color="inherit"></SearchIcon>
+          <IconButton type="submit" color="inherit" disabled={isButtonDisabled}>
+            <SearchIcon />
+          </IconButton>
         </form>
 
         <Box sx={{ display: "flex", alignItems: "center" }}>

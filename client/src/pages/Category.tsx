@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Pagination } from "@mui/material";
+import { Container, Grid, Pagination, Box } from "@mui/material";
 import { useParams } from "react-router-dom";
 import BookCard from "../components/books/BookCard";
 import { fetchCategoryById } from "../services/category.service";
@@ -34,10 +34,7 @@ const Category = () => {
     fetchData();
   }, [id, currentPage]);
 
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
@@ -60,14 +57,15 @@ const Category = () => {
             ))}
           </Grid>
           {totalPages > 1 && (
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              variant="outlined"
-              shape="rounded"
-              className="mt-4"
-            />
+            <Box display="flex" justifyContent="center" my={5}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                variant="outlined"
+                shape="rounded"
+              />
+            </Box>
           )}
         </Grid>
       </Grid>
