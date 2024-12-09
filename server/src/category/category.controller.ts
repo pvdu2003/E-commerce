@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from '../schemas/category.schema';
 
@@ -12,7 +12,16 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Category> {
-    return this.categoryService.findOne(id);
+  async getById(@Param('id') id: string, @Query('page') page: string) {
+    const currentPage = parseInt(page) || 1;
+    const { category, books, totalPages } =
+      await this.categoryService.getCategoryWithBooks(id, currentPage);
+
+    return {
+      category,
+      books,
+      currentPage,
+      totalPages,
+    };
   }
 }

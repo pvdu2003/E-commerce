@@ -8,6 +8,7 @@ import SignUp from "./pages/auth/Signup";
 import Home from "./pages/Home";
 import { useAuthContext } from "./contexts/AuthContext";
 import Layout from "./components/commons/Layout";
+import Category from "./pages/Category";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
@@ -30,6 +31,10 @@ const App: React.FC = () => {
         <Route
           path="/"
           element={<Layout>{authUser ? <Home /> : <Login />}</Layout>}
+        />
+        <Route
+          path="/category/:id"
+          element={<Layout>{authUser ? <Category /> : <Login />}</Layout>}
         />
       </Routes>
       <ToastContainer />
