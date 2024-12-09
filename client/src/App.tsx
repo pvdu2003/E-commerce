@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import { useAuthContext } from "./contexts/AuthContext";
 import Layout from "./components/commons/Layout";
 import Category from "./pages/Category";
+import BookList from "./pages/book/BookList";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
@@ -41,6 +42,14 @@ const App: React.FC = () => {
           element={
             <Layout>
               {authUser ? <Category /> : <Navigate to={"/login"} />}
+            </Layout>
+          }
+        />
+        <Route
+          path="/book/list"
+          element={
+            <Layout>
+              {authUser ? <BookList /> : <Navigate to={"/login"} />}
             </Layout>
           }
         />
