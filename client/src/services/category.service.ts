@@ -2,7 +2,7 @@ import axios from "axios";
 const API_URL = "http://localhost:3000";
 
 interface Category {
-  id: number;
+  _id: string;
   name: string;
 }
 interface Book {

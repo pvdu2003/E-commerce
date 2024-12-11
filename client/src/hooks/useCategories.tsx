@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchCategories } from "../services/category.service";
 
 interface Category {
-  id: number;
+  _id: string;
   name: string;
 }
 

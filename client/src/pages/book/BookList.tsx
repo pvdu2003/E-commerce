@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Typography, Pagination, Box } from "@mui/material";
-import { fetchBooks } from "../../services/book.service"; // Adjust the import path as necessary
+import {
+  Container,
+  Grid,
+  Typography,
+  Pagination,
+  Box,
+  Hidden,
+} from "@mui/material";
+import { fetchBooks } from "../../services/book.service";
 import BookCard from "../../components/books/BookCard";
+import Sidebar from "../../components/books/Sidebar";
+import useCategories from "../../hooks/useCategories";
 
 interface Book {
   _id: string;
@@ -28,6 +37,8 @@ const BookList: React.FC<BookListProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [totalPages, setTotalPages] = useState<number>(1);
 
+  const { categories } = useCategories();
+
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
@@ -52,38 +63,50 @@ const BookList: React.FC<BookListProps> = ({
 
   return (
     <Container>
-      <Grid container spacing={2} my={4}>
+      <Grid container spacing={2} my={1}>
         <Grid item xs={12}>
           <Typography variant="h4" align="center" gutterBottom>
             Book List
           </Typography>
         </Grid>
         <Grid container spacing={2} justifyContent="center">
-          {books.map((book) => (
-            <Grid item key={book._id} xs={6} sm={4} md={3}>
-              <BookCard
-                _id={book._id}
-                image={book.image}
-                title={book.title}
-                price={book.price}
-                quantity_sold={book.quantity_sold}
+          <Hidden mdDown>
+            <Grid item xs={12} sm={12} md={3}>
+              <Sidebar
+                categories={categories}
+                currentPage={currentPage}
+                selectedCategoryId=""
               />
             </Grid>
-          ))}
-        </Grid>
-        {totalPages > 1 && (
-          <Grid item xs={12}>
-            <Box display="flex" justifyContent="center" my={5}>
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={handlePageChange}
-                variant="outlined"
-                shape="rounded"
-              />
-            </Box>
+          </Hidden>
+
+          <Grid container item spacing={2} xs={12} sm={12} md={9} mb={3}>
+            {books.map((book) => (
+              <Grid item key={book._id} xs={6} sm={4} md={3}>
+                <BookCard
+                  _id={book._id}
+                  image={book.image}
+                  title={book.title}
+                  price={book.price}
+                  quantity_sold={book.quantity_sold}
+                />
+              </Grid>
+            ))}
+            {totalPages > 1 && (
+              <Grid item xs={12} my={4}>
+                <Box display="flex" justifyContent="center">
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    variant="outlined"
+                    shape="rounded"
+                  />
+                </Box>
+              </Grid>
+            )}
           </Grid>
-        )}
+        </Grid>
       </Grid>
     </Container>
   );

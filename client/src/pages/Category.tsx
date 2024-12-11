@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Pagination, Box } from "@mui/material";
+import { Container, Grid, Pagination, Box, Hidden } from "@mui/material";
 import { useParams } from "react-router-dom";
 import BookCard from "../components/books/BookCard";
 import { fetchCategoryById } from "../services/category.service";
+import Sidebar from "../components/books/Sidebar";
+import useCategories from "../hooks/useCategories";
 
 interface Book {
   _id: string;
@@ -18,6 +20,7 @@ const Category = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
 
+  const { categories } = useCategories();
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
@@ -40,32 +43,41 @@ const Category = () => {
 
   return (
     <Container>
-      <Grid container spacing={2} className="my-4">
-        <Grid item xs={2}></Grid>
-        <Grid item xs={10} className="ps-5">
-          <Grid container spacing={2}>
-            {books.map((book) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={book._id}>
-                <BookCard
-                  _id={book._id}
-                  image={book.image}
-                  title={book.title}
-                  price={book.price}
-                  quantity_sold={book.quantity_sold}
-                />
-              </Grid>
-            ))}
+      <Grid container spacing={2} justifyContent="center" my={1}>
+        <Hidden mdDown>
+          <Grid item xs={12} sm={12} md={3}>
+            <Sidebar
+              categories={categories}
+              currentPage={currentPage}
+              selectedCategoryId=""
+            />
           </Grid>
-          {totalPages > 1 && (
-            <Box display="flex" justifyContent="center" my={5}>
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={handlePageChange}
-                variant="outlined"
-                shape="rounded"
+        </Hidden>
+
+        <Grid container item spacing={2} xs={12} sm={12} md={9}>
+          {books.map((book) => (
+            <Grid item key={book._id} xs={6} sm={4} md={3}>
+              <BookCard
+                _id={book._id}
+                image={book.image}
+                title={book.title}
+                price={book.price}
+                quantity_sold={book.quantity_sold}
               />
-            </Box>
+            </Grid>
+          ))}
+          {totalPages > 1 && (
+            <Grid item xs={12} my={4}>
+              <Box display="flex" justifyContent="center">
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  variant="outlined"
+                  shape="rounded"
+                />
+              </Box>
+            </Grid>
           )}
         </Grid>
       </Grid>
