@@ -7,6 +7,7 @@ import {
   Box,
   Hidden,
 } from "@mui/material";
+import { useLocation } from "react-router-dom";
 import { fetchBooks } from "../../services/book.service";
 import BookCard from "../../components/books/BookCard";
 import Sidebar from "../../components/books/Sidebar";
@@ -20,19 +21,15 @@ interface Book {
   image: string;
 }
 
-interface BookListProps {
-  initialPage?: number;
-  initialFrom?: number;
-  initialTo?: number;
-  initialTitle?: string;
-}
+const BookList: React.FC = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
 
-const BookList: React.FC<BookListProps> = ({
-  initialPage = 1,
-  initialFrom = 0,
-  initialTo = 150,
-  initialTitle = "",
-}) => {
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialFrom = parseInt(searchParams.get("from") || "0", 10);
+  const initialTo = parseInt(searchParams.get("to") || "150", 10);
+  const initialTitle = searchParams.get("title") || "";
+
   const [books, setBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -42,6 +39,7 @@ const BookList: React.FC<BookListProps> = ({
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
+
   useEffect(() => {
     const loadBooks = async () => {
       try {
@@ -81,18 +79,26 @@ const BookList: React.FC<BookListProps> = ({
           </Hidden>
 
           <Grid container item spacing={2} xs={12} sm={12} md={9} mb={3}>
-            {books.map((book) => (
-              <Grid item key={book._id} xs={6} sm={4} md={3}>
-                <BookCard
-                  _id={book._id}
-                  image={book.image}
-                  title={book.title}
-                  price={book.price}
-                  quantity_sold={book.quantity_sold}
-                />
+            {books.length > 0 ? (
+              books.map((book) => (
+                <Grid item key={book._id} xs={6} sm={4} md={3}>
+                  <BookCard
+                    _id={book._id}
+                    image={book.image}
+                    title={book.title}
+                    price={book.price}
+                    quantity_sold={book.quantity_sold}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <Typography variant="h6" align="center">
+                  No books found. Please try a different search or filter.
+                </Typography>
               </Grid>
-            ))}
-            {totalPages > 1 && (
+            )}
+            {totalPages > 1 && books.length > 0 && (
               <Grid item xs={12} my={4}>
                 <Box display="flex" justifyContent="center">
                   <Pagination

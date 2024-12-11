@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -15,6 +15,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+
 interface Category {
   _id: string;
   name: string;
@@ -22,13 +23,18 @@ interface Category {
 
 interface HeaderProps {
   categories: Category[];
+  from?: number;
+  to?: number;
+  page?: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ categories }) => {
+const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -36,9 +42,25 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+
+    // Update the URL without redirecting
+    const params = new URLSearchParams(location.search);
+    params.set("title", newSearchTerm);
+    if (from !== undefined) {
+      params.set("from", from.toString());
+    }
+    if (to !== undefined) {
+      params.set("to", to.toString());
+    }
+    params.set("page", page.toString());
+
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   };
+
   const isButtonDisabled = searchTerm.trim().length === 0;
 
   return (
@@ -70,7 +92,11 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
                 key={category._id}
                 onClick={() => {
                   handleClose();
-                  navigate(`/category/${category._id}`);
+                  navigate(
+                    `/category/${category._id}?${
+                      from !== undefined ? `from=${from}&` : ""
+                    }&${to !== undefined ? `to=${to}&` : ""}page=${page}`
+                  );
                 }}
               >
                 {category.name}
@@ -79,42 +105,36 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
           </Menu>
         </Box>
 
-        <form
-          action="/book/list"
-          method="get"
-          style={{ display: "flex", flexGrow: 1 }}
-        >
-          <TextField
-            variant="outlined"
-            name="title"
-            placeholder="Search books here"
-            fullWidth
-            size="small"
-            value={searchTerm}
-            onChange={handleInputChange}
-            sx={{
-              borderRadius: "20px",
-              mr: 1,
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                  borderColor: "#fff",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#fff",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#fff",
-                },
-                "& input": {
-                  color: "#fff",
-                },
+        <TextField
+          variant="outlined"
+          name="title"
+          placeholder="Search books here"
+          fullWidth
+          size="small"
+          value={searchTerm}
+          onChange={handleInputChange}
+          sx={{
+            borderRadius: "20px",
+            mr: 1,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#fff",
               },
-            }}
-          />
-          <IconButton type="submit" color="inherit" disabled={isButtonDisabled}>
-            <SearchIcon />
-          </IconButton>
-        </form>
+              "&:hover fieldset": {
+                borderColor: "#fff",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#fff",
+              },
+              "& input": {
+                color: "#fff",
+              },
+            },
+          }}
+        />
+        <IconButton type="button" color="inherit" disabled={isButtonDisabled}>
+          <SearchIcon />
+        </IconButton>
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton component={Link} to="/user/profile" color="inherit">

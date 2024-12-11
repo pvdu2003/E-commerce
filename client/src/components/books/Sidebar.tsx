@@ -34,23 +34,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           Price
         </Typography>
 
-        <ListItemButton
-          component="a"
-          href={`/book/list?page=${currentPage}&to=30`}
-        >
-          <ListItemText primary="<30$" />
+        <ListItemButton component="a" href={`?page=${currentPage}&to=3`}>
+          <ListItemText primary="<3$" />
         </ListItemButton>
-        <ListItemButton
-          component="a"
-          href={`/book/list?page=${currentPage}&from=30&to=60`}
-        >
-          <ListItemText primary="30-60$" />
+        <ListItemButton component="a" href={`?page=${currentPage}&from=3&to=6`}>
+          <ListItemText primary="3-6$" />
         </ListItemButton>
-        <ListItemButton
-          component="a"
-          href={`/book/list?page=${currentPage}&from=60`}
-        >
-          <ListItemText primary=">60$" />
+        <ListItemButton component="a" href={`?page=${currentPage}&from=6`}>
+          <ListItemText primary=">6$" />
         </ListItemButton>
 
         <Divider sx={{ my: 1 }} />
