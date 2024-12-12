@@ -10,6 +10,7 @@ import { useAuthContext } from "./contexts/AuthContext";
 import Layout from "./components/commons/Layout";
 import Category from "./pages/Category";
 import BookList from "./pages/book/BookList";
+import BookDetail from "./pages/book/BookDetail";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
@@ -42,6 +43,14 @@ const App: React.FC = () => {
           element={
             <Layout>
               {authUser ? <Category /> : <Navigate to={"/login"} />}
+            </Layout>
+          }
+        />
+        <Route
+          path="/book/:id"
+          element={
+            <Layout>
+              {authUser ? <BookDetail /> : <Navigate to={"/login"} />}
             </Layout>
           }
         />

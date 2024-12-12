@@ -18,3 +18,8 @@ export const fetchBooks = async (
   });
   return response.data;
 };
+
+export const fetchBookDetail = async (id: string) => {
+  const response = await axios.get(`${API_URL}/${id}`);
+  return response.data;
+};
