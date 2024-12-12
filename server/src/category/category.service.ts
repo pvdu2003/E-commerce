@@ -19,17 +19,24 @@ export class CategoryService {
     return this.categoryModel.findById(id).exec();
   }
 
-  async getCategoryWithBooks(id: string, currentPage: number): Promise<any> {
+  async getCategoryWithBooks(
+    id: string,
+    currentPage: number,
+    title?: string,
+  ): Promise<any> {
     const category = await this.findOne(id);
     const limit = 12;
 
-    const totalBooks = await this.bookModel
-      .countDocuments({ cat_id: id })
-      .exec();
-    const totalPages = Math.ceil(totalBooks / limit);
+    const query: any = { cat_id: id };
 
+    if (title) {
+      query.title = { $regex: title, $options: 'i' };
+    }
+
+    const totalBooks = await this.bookModel.countDocuments(query).exec();
+    const totalPages = Math.ceil(totalBooks / limit);
     const books = await this.bookModel
-      .find({ cat_id: id })
+      .find(query)
       .skip((currentPage - 1) * limit)
       .limit(limit)
       .exec();

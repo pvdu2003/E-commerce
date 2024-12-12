@@ -17,16 +17,26 @@ const BookCard: React.FC<BookCardProps> = ({
   quantity_sold,
 }) => {
   return (
-    <Card sx={{ width: "100%", height: "16rem" }}>
+    <Card
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        maxHeight: "280px",
+      }}
+    >
       <a href={`/book/${_id}`}>
         <CardMedia
           component="img"
           image={image}
           alt="Book Image"
-          sx={{ height: "12rem", objectFit: "cover" }}
+          sx={{ height: "200px", objectFit: "cover" }}
         />
       </a>
-      <CardContent sx={{ padding: "8px !important" }}>
+      <CardContent
+        sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+      >
         <Typography className="text-dark fs-6 fw-semibold" noWrap>
           <a href={`/book/${_id}`} className="text-decoration-none text-dark">
             {title}

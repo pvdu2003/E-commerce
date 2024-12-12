@@ -12,10 +12,14 @@ export class CategoryController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string, @Query('page') page: string) {
+  async getById(
+    @Param('id') id: string,
+    @Query('page') page?: string,
+    @Query('title') title?: string,
+  ) {
     const currentPage = parseInt(page) || 1;
     const { category, books, totalPages } =
-      await this.categoryService.getCategoryWithBooks(id, currentPage);
+      await this.categoryService.getCategoryWithBooks(id, currentPage, title);
 
     return {
       category,

@@ -47,18 +47,42 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
     const newSearchTerm = event.target.value;
     setSearchTerm(newSearchTerm);
 
-    // Update the URL without redirecting
     const params = new URLSearchParams(location.search);
-    params.set("title", newSearchTerm);
+    if (newSearchTerm) {
+      params.set("title", newSearchTerm);
+    } else {
+      params.delete("title");
+    }
     if (from !== undefined) {
       params.set("from", from.toString());
     }
     if (to !== undefined) {
       params.set("to", to.toString());
     }
-    params.set("page", page.toString());
 
     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  const handleSearchSubmit = () => {
+    const params = new URLSearchParams(location.search);
+    if (searchTerm) {
+      params.set("title", searchTerm);
+    } else {
+      params.delete("title");
+    }
+    if (from !== undefined) {
+      params.set("from", from.toString());
+    }
+    if (to !== undefined) {
+      params.set("to", to.toString());
+    }
+    if (page && page > 1) {
+      params.set("page", page.toString());
+    } else {
+      params.delete("page");
+    }
+
+    navigate(`${location.pathname}?${params.toString()}`);
   };
 
   const isButtonDisabled = searchTerm.trim().length === 0;
@@ -95,7 +119,9 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
                   navigate(
                     `/category/${category._id}?${
                       from !== undefined ? `from=${from}&` : ""
-                    }&${to !== undefined ? `to=${to}&` : ""}page=${page}`
+                    }${to !== undefined ? `to=${to}&` : ""}${
+                      page && page > 1 ? `page=${page}` : ""
+                    }`
                   );
                 }}
               >
@@ -132,7 +158,12 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
             },
           }}
         />
-        <IconButton type="button" color="inherit" disabled={isButtonDisabled}>
+        <IconButton
+          type="button"
+          color="inherit"
+          onClick={handleSearchSubmit}
+          disabled={isButtonDisabled}
+        >
           <SearchIcon />
         </IconButton>
 
