@@ -6,6 +6,7 @@ import { Book, BookSchema } from './schemas/book.schema';
 import { Category, CategorySchema } from './schemas/category.schema';
 import { CategoryModule } from './category/category.module';
 import { BookModule } from './book/book.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BookModule } from './book/book.module';
     HomeModule,
     CategoryModule,
     BookModule,
+    CartModule
   ],
 })
 export class AppModule {}
