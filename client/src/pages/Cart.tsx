@@ -9,10 +9,12 @@ import {
   CardMedia,
   Grid,
 } from "@mui/material";
-import { Delete as DeleteIcon } from "@mui/icons-material";
-import axios from "axios";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuthContext } from "../contexts/AuthContext";
 import { fetchCartDetail } from "../services/cart.service";
+import axios from "axios";
 
 interface Book {
   _id: string;
@@ -64,6 +66,32 @@ const Cart: React.FC = () => {
     updateTotalFee(carts);
   };
 
+  const incrementQuantity = (bookId: string) => {
+    setCarts((prevCarts) =>
+      prevCarts.map((cart) => ({
+        ...cart,
+        books: cart.books.map((book) =>
+          book._id === bookId ? { ...book, quantity: book.quantity + 1 } : book
+        ),
+      }))
+    );
+    updateTotalFee(carts);
+  };
+
+  const decrementQuantity = (bookId: string) => {
+    setCarts((prevCarts) =>
+      prevCarts.map((cart) => ({
+        ...cart,
+        books: cart.books.map((book) =>
+          book._id === bookId && book.quantity > 1
+            ? { ...book, quantity: book.quantity - 1 }
+            : book
+        ),
+      }))
+    );
+    updateTotalFee(carts);
+  };
+
   const handleDelete = async (bookId: string) => {
     try {
       await axios.delete(`/cart/delete/${bookId}`);
@@ -102,26 +130,7 @@ const Cart: React.FC = () => {
           </Button>
         </div>
       ) : (
-        <div className="container text-center p-2 border mb-5">
-          <Grid container>
-            <Grid item xs={1}></Grid>
-            <Grid item xs={4}>
-              Products
-            </Grid>
-            <Grid item xs={2}>
-              Price
-            </Grid>
-            <Grid item xs={2}>
-              Quantity
-            </Grid>
-            <Grid item xs={2}>
-              Total Price
-            </Grid>
-            <Grid item xs={1}>
-              Action
-            </Grid>
-          </Grid>
-
+        <div className="container text-center p-2 mb-5">
           {carts.map((cart) => (
             <div
               key={cart._id}
@@ -143,24 +152,40 @@ const Cart: React.FC = () => {
                     <Checkbox value={book._id} />
                   </Grid>
                   <Grid item xs={4} className="d-flex align-items-center">
-                    <img src={book.book_id.image} />
                     <CardMedia
                       component="img"
                       image={book.book_id.image}
                       alt="Book Cover"
-                      style={{ height: 75, width: 60 }}
+                      sx={{
+                        height: 75,
+                        width: 60,
+                        display: { xs: "none", sm: "block" },
+                      }}
                     />
-                    <a
-                      href={`/book/${book.book_id._id}`}
+                    <Typography
+                      variant="body2"
                       className="ms-2 text-main text-decoration-none"
+                      sx={{
+                        maxWidth: "200px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
                     >
                       {book.book_id.title}
-                    </a>
+                    </Typography>
                   </Grid>
                   <Grid item xs={2}>
                     {book.book_id.price.toFixed(2)}
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={2} className="d-flex align-items-center">
+                    <IconButton
+                      onClick={() => decrementQuantity(book._id)}
+                      size="small"
+                      aria-label="decrement"
+                    >
+                      <RemoveIcon />
+                    </IconButton>
                     <TextField
                       type="number"
                       value={book.quantity}
@@ -171,9 +196,32 @@ const Cart: React.FC = () => {
                         "aria-label": "quantity",
                         min: 1,
                       }}
+                      size="small"
+                      sx={{
+                        width: "50px",
+                        textAlign: "center",
+                      }}
                     />
+                    <IconButton
+                      onClick={() => incrementQuantity(book._id)}
+                      size="small"
+                      aria-label="increment"
+                    >
+                      <AddIcon />
+                    </IconButton>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid
+                    item
+                    xs={2}
+                    sx={{ display: { xs: "none", sm: "block" } }}
+                  >
+                    {(book.book_id.price * book.quantity).toFixed(2)}
+                  </Grid>
+                  <Grid
+                    item
+                    xs={2}
+                    sx={{ display: { xs: "block", sm: "none" } }}
+                  >
                     {(book.book_id.price * book.quantity).toFixed(2)}
                   </Grid>
                   <Grid item xs={1}>
@@ -188,8 +236,8 @@ const Cart: React.FC = () => {
 
           <div className="container text-end mt-3">
             <Typography>
-              Total fee:{" "}
-              <span className="text-main fw-medium">{totalFee.toFixed(2)}</span>{" "}
+              Total fee:
+              <span className="text-main fw-medium">{totalFee.toFixed(2)}</span>
               $
             </Typography>
             <Button variant="contained" color="primary" href="/order/checkout">

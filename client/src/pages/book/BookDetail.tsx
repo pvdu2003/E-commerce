@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -13,6 +13,9 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { fetchBookDetail } from "../../services/book.service";
+import { addToCart } from "../../services/cart.service";
+import { useAuthContext } from "../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 interface Book {
   _id: string;
@@ -34,12 +37,13 @@ const BookDetail: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const [book, setBook] = useState<Book | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
+  const { authUser } = useAuthContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBook = async () => {
-      if (!id) {
-        return;
-      }
+      if (!id) return;
+
       try {
         const response = await fetchBookDetail(id);
         setBook(response);
@@ -52,11 +56,29 @@ const BookDetail: React.FC = () => {
   }, [id]);
 
   const incrementQuantity = () => {
-    setQuantity((prev) => prev + 1);
+    if (book) {
+      setQuantity((prev) => Math.min(prev + 1, book.quantity_in_stock));
+    }
   };
 
   const decrementQuantity = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!book) return;
+
+    try {
+      await addToCart(authUser._id, book._id, book.publisher, quantity);
+      toast.success("Add this book to your cart", { autoClose: 1500 });
+      setTimeout(() => {
+        navigate(`/cart/list`, { replace: true });
+      }, 2000);
+    } catch (error) {
+      console.error("Error adding book to cart:", error);
+    }
   };
 
   if (!book) {
@@ -93,10 +115,7 @@ const BookDetail: React.FC = () => {
           <Typography variant="h5" className="text-main">
             Price: {book.price} $
           </Typography>
-          <form action="/cart/add" method="post">
-            <input type="hidden" name="book_id" value={book._id} />
-            <input type="hidden" name="title" value={book.title} />
-            <input type="hidden" name="publisher" value={book.publisher} />
+          <form onSubmit={handleSubmit}>
             <Box
               display="flex"
               alignItems="center"
