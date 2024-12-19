@@ -11,9 +11,11 @@ import Layout from "./components/commons/Layout";
 import Category from "./pages/Category";
 import BookList from "./pages/book/BookList";
 import BookDetail from "./pages/book/BookDetail";
+import Cart from "./pages/Cart";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
+console.log(authUser);
 
   return (
     <>
@@ -59,6 +61,14 @@ const App: React.FC = () => {
           element={
             <Layout>
               {authUser ? <BookList /> : <Navigate to={"/login"} />}
+            </Layout>
+          }
+        />
+        <Route
+          path="/cart/list"
+          element={
+            <Layout>
+              {authUser ? <Cart /> : <Navigate to={"/login"} />}
             </Layout>
           }
         />
