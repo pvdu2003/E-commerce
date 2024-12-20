@@ -39,57 +39,88 @@ const Cart: React.FC = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
   const [totalFee, setTotalFee] = useState<number>(0);
   const { authUser } = useAuthContext();
+  const [checkedBooks, setCheckedBooks] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+  const [checkedPublishers, setCheckedPublishers] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const response = await fetchCartDetail(authUser._id);
         setCarts(response);
-        updateTotalFee(response);
+        updateTotalFee(response, checkedBooks);
       } catch (error) {
         console.error("Error fetching cart:", error);
       }
     };
 
     fetchCart();
-  }, [authUser._id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateTotalFee = (
+    cartItems: Cart[],
+    currentCheckedBooks: { [key: string]: boolean }
+  ) => {
+    const total = cartItems.reduce((acc, cart) => {
+      return (
+        acc +
+        cart.books.reduce((bookAcc, book) => {
+          if (currentCheckedBooks[book._id]) {
+            return bookAcc + book.book_id.price * book.quantity;
+          }
+          return bookAcc;
+        }, 0)
+      );
+    }, 0);
+    setTotalFee(total);
+  };
 
   const handleQuantityChange = (bookId: string, quantity: string) => {
-    setCarts((prevCarts) =>
-      prevCarts.map((cart) => ({
+    const qty = parseInt(quantity);
+    if (qty < 1) return;
+
+    setCarts((prevCarts) => {
+      const updatedCarts = prevCarts.map((cart) => ({
         ...cart,
         books: cart.books.map((book) =>
-          book._id === bookId ? { ...book, quantity: parseInt(quantity) } : book
+          book._id === bookId ? { ...book, quantity: qty } : book
         ),
-      }))
-    );
-    updateTotalFee(carts);
+      }));
+      updateTotalFee(updatedCarts, checkedBooks);
+      return updatedCarts;
+    });
   };
 
   const incrementQuantity = (bookId: string) => {
-    setCarts((prevCarts) =>
-      prevCarts.map((cart) => ({
+    setCarts((prevCarts) => {
+      const updatedCarts = prevCarts.map((cart) => ({
         ...cart,
         books: cart.books.map((book) =>
           book._id === bookId ? { ...book, quantity: book.quantity + 1 } : book
         ),
-      }))
-    );
-    updateTotalFee(carts);
+      }));
+      updateTotalFee(updatedCarts, checkedBooks);
+      return updatedCarts;
+    });
   };
 
   const decrementQuantity = (bookId: string) => {
-    setCarts((prevCarts) =>
-      prevCarts.map((cart) => ({
+    setCarts((prevCarts) => {
+      const updatedCarts = prevCarts.map((cart) => ({
         ...cart,
         books: cart.books.map((book) =>
           book._id === bookId && book.quantity > 1
             ? { ...book, quantity: book.quantity - 1 }
             : book
         ),
-      }))
-    );
-    updateTotalFee(carts);
+      }));
+      updateTotalFee(updatedCarts, checkedBooks);
+      return updatedCarts;
+    });
   };
 
   const handleDelete = async (bookId: string) => {
@@ -97,22 +128,46 @@ const Cart: React.FC = () => {
       await axios.delete(`/cart/delete/${bookId}`);
       const response = await fetchCartDetail(authUser._id);
       setCarts(response);
-      updateTotalFee(response);
+      updateTotalFee(response, checkedBooks);
     } catch (error) {
       console.error("Error deleting book from cart:", error);
     }
   };
 
-  const updateTotalFee = (cartItems: Cart[]) => {
-    const total = cartItems.reduce((acc, cart) => {
-      return (
-        acc +
-        cart.books.reduce((bookAcc, book) => {
-          return bookAcc + book.book_id.price * book.quantity;
-        }, 0)
-      );
-    }, 0);
-    setTotalFee(total);
+  const handleCheckboxChange = (bookId: string, publisher: string) => {
+    setCheckedBooks((prev) => {
+      const newCheckedState = { ...prev, [bookId]: !prev[bookId] };
+
+      // Check how many books under this publisher are still checked
+      const allBooks =
+        carts.find((cart) => cart.publisher === publisher)?.books || [];
+      const allChecked = allBooks.every((book) => newCheckedState[book._id]);
+
+      // Update publisher checkbox state
+      setCheckedPublishers((prevPublishers) => ({
+        ...prevPublishers,
+        [publisher]: allChecked,
+      }));
+
+      updateTotalFee(carts, newCheckedState);
+      return newCheckedState;
+    });
+  };
+
+  const handlePublisherCheckboxChange = (publisher: string, books: Book[]) => {
+    const isChecked = !checkedPublishers[publisher];
+
+    const newCheckedBooks = { ...checkedBooks };
+    books.forEach((book) => {
+      newCheckedBooks[book._id] = isChecked;
+    });
+
+    setCheckedBooks(newCheckedBooks);
+    setCheckedPublishers((prev) => ({
+      ...prev,
+      [publisher]: isChecked,
+    }));
+    updateTotalFee(carts, newCheckedBooks);
   };
 
   return (
@@ -138,7 +193,12 @@ const Cart: React.FC = () => {
             >
               <Grid container alignItems="center">
                 <Grid item xs={1}>
-                  <Checkbox value={cart.publisher} />
+                  <Checkbox
+                    checked={!!checkedPublishers[cart.publisher]}
+                    onChange={() =>
+                      handlePublisherCheckboxChange(cart.publisher, cart.books)
+                    }
+                  />
                 </Grid>
                 <Grid item xs={8} className="text-start text-main fw-medium">
                   {cart.publisher}
@@ -149,7 +209,12 @@ const Cart: React.FC = () => {
               {cart.books.map((book) => (
                 <Grid container alignItems="center" key={book._id}>
                   <Grid item xs={1}>
-                    <Checkbox value={book._id} />
+                    <Checkbox
+                      checked={!!checkedBooks[book._id]}
+                      onChange={() =>
+                        handleCheckboxChange(book._id, cart.publisher)
+                      }
+                    />
                   </Grid>
                   <Grid item xs={4} className="d-flex align-items-center">
                     <CardMedia
@@ -210,18 +275,7 @@ const Cart: React.FC = () => {
                       <AddIcon />
                     </IconButton>
                   </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    sx={{ display: { xs: "none", sm: "block" } }}
-                  >
-                    {(book.book_id.price * book.quantity).toFixed(2)}
-                  </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    sx={{ display: { xs: "block", sm: "none" } }}
-                  >
+                  <Grid item xs={2}>
                     {(book.book_id.price * book.quantity).toFixed(2)}
                   </Grid>
                   <Grid item xs={1}>
@@ -235,14 +289,24 @@ const Cart: React.FC = () => {
           ))}
 
           <div className="container text-end mt-3">
-            <Typography>
-              Total fee:
-              <span className="text-main fw-medium">{totalFee.toFixed(2)}</span>
-              $
-            </Typography>
-            <Button variant="contained" color="primary" href="/order/checkout">
-              Buy Now
-            </Button>
+            {totalFee > 0 && (
+              <>
+                <Typography>
+                  Total fee:
+                  <span className="text-main fw-medium">
+                    {totalFee.toFixed(2)}
+                  </span>
+                  $
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  href="/order/checkout"
+                >
+                  Buy Now
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
