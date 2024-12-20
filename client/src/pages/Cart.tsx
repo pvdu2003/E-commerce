@@ -1,20 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Typography,
-  Button,
-  Checkbox,
-  TextField,
-  IconButton,
-  CardMedia,
-  Grid,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Container, Typography, Button } from "@mui/material";
 import { useAuthContext } from "../contexts/AuthContext";
 import { fetchCartDetail } from "../services/cart.service";
 import axios from "axios";
+import CartItem from "../components/cart/CartItem";
+import PublisherCheckbox from "../components/cart/PublisherCheckbox";
+import CartSummary from "../components/cart/CartSummary";
 
 interface Book {
   _id: string;
@@ -24,6 +15,7 @@ interface Book {
     price: number;
     title: string;
     author: string;
+    publisher: string;
   };
   quantity: number;
   addedAt: string;
@@ -191,123 +183,33 @@ const Cart: React.FC = () => {
               key={cart._id}
               className="container text-center p-2 my-3 border"
             >
-              <Grid container alignItems="center">
-                <Grid item xs={1}>
-                  <Checkbox
-                    checked={!!checkedPublishers[cart.publisher]}
-                    onChange={() =>
-                      handlePublisherCheckboxChange(cart.publisher, cart.books)
-                    }
-                  />
-                </Grid>
-                <Grid item xs={8} className="text-start text-main fw-medium">
-                  {cart.publisher}
-                </Grid>
-              </Grid>
-
+              <PublisherCheckbox
+                publisher={cart.publisher}
+                isChecked={!!checkedPublishers[cart.publisher]}
+                onChange={() =>
+                  handlePublisherCheckboxChange(cart.publisher, cart.books)
+                }
+              />
               <hr />
               {cart.books.map((book) => (
-                <Grid container alignItems="center" key={book._id}>
-                  <Grid item xs={1}>
-                    <Checkbox
-                      checked={!!checkedBooks[book._id]}
-                      onChange={() =>
-                        handleCheckboxChange(book._id, cart.publisher)
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={4} className="d-flex align-items-center">
-                    <CardMedia
-                      component="img"
-                      image={book.book_id.image}
-                      alt="Book Cover"
-                      sx={{
-                        height: 75,
-                        width: 60,
-                        display: { xs: "none", sm: "block" },
-                      }}
-                    />
-                    <Typography
-                      variant="body2"
-                      className="ms-2 text-main text-decoration-none"
-                      sx={{
-                        maxWidth: "200px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {book.book_id.title}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2}>
-                    {book.book_id.price.toFixed(2)}
-                  </Grid>
-                  <Grid item xs={2} className="d-flex align-items-center">
-                    <IconButton
-                      onClick={() => decrementQuantity(book._id)}
-                      size="small"
-                      aria-label="decrement"
-                    >
-                      <RemoveIcon />
-                    </IconButton>
-                    <TextField
-                      type="number"
-                      value={book.quantity}
-                      onChange={(e) =>
-                        handleQuantityChange(book._id, e.target.value)
-                      }
-                      inputProps={{
-                        "aria-label": "quantity",
-                        min: 1,
-                      }}
-                      size="small"
-                      sx={{
-                        width: "50px",
-                        textAlign: "center",
-                      }}
-                    />
-                    <IconButton
-                      onClick={() => incrementQuantity(book._id)}
-                      size="small"
-                      aria-label="increment"
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </Grid>
-                  <Grid item xs={2}>
-                    {(book.book_id.price * book.quantity).toFixed(2)}
-                  </Grid>
-                  <Grid item xs={1}>
-                    <IconButton onClick={() => handleDelete(book._id)}>
-                      <DeleteIcon color="error" />
-                    </IconButton>
-                  </Grid>
-                </Grid>
+                <CartItem
+                  key={book._id}
+                  book={book}
+                  publisher={cart.publisher}
+                  onIncrement={incrementQuantity}
+                  onDecrement={decrementQuantity}
+                  onDelete={handleDelete}
+                  onQuantityChange={handleQuantityChange}
+                  isChecked={!!checkedBooks[book._id]}
+                  onCheckboxChange={() =>
+                    handleCheckboxChange(book._id, cart.publisher)
+                  }
+                />
               ))}
             </div>
           ))}
 
-          <div className="container text-end mt-3">
-            {totalFee > 0 && (
-              <>
-                <Typography>
-                  Total fee:
-                  <span className="text-main fw-medium">
-                    {totalFee.toFixed(2)}
-                  </span>
-                  $
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  href="/order/checkout"
-                >
-                  Buy Now
-                </Button>
-              </>
-            )}
-          </div>
+          <CartSummary totalFee={totalFee} />
         </div>
       )}
     </Container>
