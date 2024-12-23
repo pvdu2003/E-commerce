@@ -19,7 +19,7 @@ import { CartModule } from './cart/cart.module';
     HomeModule,
     CategoryModule,
     BookModule,
-    CartModule
+    CartModule,
   ],
 })
 export class AppModule {}

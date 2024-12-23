@@ -10,10 +10,12 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { updateCart } from "../../services/cart.service";
 
 interface Book {
   _id: string;
   book_id: {
+    _id: string;
     image: string;
     price: number;
     title: string;
@@ -24,10 +26,10 @@ interface Book {
 interface CartItemProps {
   book: Book;
   publisher: string;
-  onIncrement: (bookId: string) => void;
-  onDecrement: (bookId: string) => void;
+  userId: string;
+  onCartUpdate: () => void;
   onDelete: (bookId: string) => void;
-  onQuantityChange: (bookId: string, quantity: string) => void;
+  onQuantityChange: (bookId: string, quantity: number) => void;
   isChecked: boolean;
   onCheckboxChange: (bookId: string, publisher: string) => void;
 }
@@ -35,13 +37,48 @@ interface CartItemProps {
 const CartItem: React.FC<CartItemProps> = ({
   book,
   publisher,
-  onIncrement,
-  onDecrement,
+  userId,
+  onCartUpdate,
   onDelete,
   onQuantityChange,
   isChecked,
   onCheckboxChange,
 }) => {
+  const handleQuantityChange = async (bookId: string, quantity: number) => {
+    const qty = Math.max(1, quantity);
+    onQuantityChange(bookId, qty);
+    try {
+      await updateCart(userId, bookId, publisher, qty);
+      onCartUpdate();
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
+  };
+
+  const handleIncrement = async () => {
+    const newQuantity = book.quantity + 1;
+    onQuantityChange(book.book_id._id, newQuantity);
+
+    try {
+      await updateCart(userId, book.book_id._id, publisher, newQuantity);
+      onCartUpdate();
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
+  };
+
+  const handleDecrement = async () => {
+    const newQuantity = Math.max(1, book.quantity - 1);
+    onQuantityChange(book.book_id._id, newQuantity);
+
+    try {
+      await updateCart(userId, book.book_id._id, publisher, newQuantity);
+      onCartUpdate();
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
+  };
+
   return (
     <Grid container alignItems="center" key={book._id}>
       <Grid item xs={1}>
@@ -75,7 +112,7 @@ const CartItem: React.FC<CartItemProps> = ({
       </Grid>
       <Grid item xs={2} className="d-flex align-items-center">
         <IconButton
-          onClick={() => onDecrement(book._id)}
+          onClick={handleDecrement}
           size="small"
           aria-label="decrement"
         >
@@ -84,13 +121,15 @@ const CartItem: React.FC<CartItemProps> = ({
         <TextField
           type="number"
           value={book.quantity}
-          onChange={(e) => onQuantityChange(book._id, e.target.value)}
+          onChange={(e) =>
+            handleQuantityChange(book.book_id._id, parseInt(e.target.value))
+          }
           inputProps={{ "aria-label": "quantity", min: 1 }}
           size="small"
           sx={{ width: "50px", textAlign: "center" }}
         />
         <IconButton
-          onClick={() => onIncrement(book._id)}
+          onClick={handleIncrement}
           size="small"
           aria-label="increment"
         >

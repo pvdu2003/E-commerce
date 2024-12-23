@@ -19,3 +19,18 @@ export const addToCart = async (
   });
   return response.data;
 };
+
+export const updateCart = async (
+  user_id: string,
+  bookId: string,
+  publisher: string,
+  quantity: number
+) => {
+  console.log(user_id, bookId, publisher, quantity);
+
+  await axios.patch(`${API_URL}/update/${user_id}`, {
+    bookId,
+    publisher,
+    quantity,
+  });
+};

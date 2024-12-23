@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Cart, CartDocument, CartItem } from '../schemas/cart.schema';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { UpdateQuantityDto } from './dto/update-quantity.dto';
 
 @Injectable()
 export class CartService {
@@ -61,6 +62,43 @@ export class CartService {
       });
     }
 
+    await cart.save();
+  }
+
+  async updateQuantity(
+    userId: string,
+    updateQuantityDto: UpdateQuantityDto,
+  ): Promise<void> {
+    const { publisher, bookId, quantity } = updateQuantityDto;
+
+    console.log('Input: ' + publisher, bookId, quantity);
+
+    const cart = await this.cartModel.findOne({
+      user_id: new Types.ObjectId(userId),
+    });
+    console.log(cart);
+
+    if (!cart) {
+      throw new NotFoundException(`Cart for user ${userId} not found`);
+    }
+
+    const existingPublisherIndex = cart.carts.findIndex(
+      (item) => item.publisher === publisher,
+    );
+
+    if (existingPublisherIndex === -1) {
+      throw new NotFoundException(`Publisher ${publisher} not found in cart`);
+    }
+
+    const bookIndex = cart.carts[existingPublisherIndex].books.findIndex(
+      (book) => book.book_id.toString() === bookId,
+    );
+
+    if (bookIndex === -1) {
+      throw new NotFoundException(`Book with ID ${bookId} not found in cart`);
+    }
+
+    cart.carts[existingPublisherIndex].books[bookIndex].quantity = quantity;
     await cart.save();
   }
 

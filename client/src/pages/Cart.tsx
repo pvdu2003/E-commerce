@@ -38,17 +38,16 @@ const Cart: React.FC = () => {
     [key: string]: boolean;
   }>({});
 
+  const fetchCart = async () => {
+    try {
+      const response = await fetchCartDetail(authUser._id);
+      setCarts(response);
+      updateTotalFee(response, checkedBooks);
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
   useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const response = await fetchCartDetail(authUser._id);
-        setCarts(response);
-        updateTotalFee(response, checkedBooks);
-      } catch (error) {
-        console.error("Error fetching cart:", error);
-      }
-    };
-
     fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -71,43 +70,14 @@ const Cart: React.FC = () => {
     setTotalFee(total);
   };
 
-  const handleQuantityChange = (bookId: string, quantity: string) => {
-    const qty = parseInt(quantity);
-    if (qty < 1) return;
+  const handleQuantityChange = (bookId: string, quantity: number) => {
+    if (quantity < 1) return;
 
     setCarts((prevCarts) => {
       const updatedCarts = prevCarts.map((cart) => ({
         ...cart,
         books: cart.books.map((book) =>
-          book._id === bookId ? { ...book, quantity: qty } : book
-        ),
-      }));
-      updateTotalFee(updatedCarts, checkedBooks);
-      return updatedCarts;
-    });
-  };
-
-  const incrementQuantity = (bookId: string) => {
-    setCarts((prevCarts) => {
-      const updatedCarts = prevCarts.map((cart) => ({
-        ...cart,
-        books: cart.books.map((book) =>
-          book._id === bookId ? { ...book, quantity: book.quantity + 1 } : book
-        ),
-      }));
-      updateTotalFee(updatedCarts, checkedBooks);
-      return updatedCarts;
-    });
-  };
-
-  const decrementQuantity = (bookId: string) => {
-    setCarts((prevCarts) => {
-      const updatedCarts = prevCarts.map((cart) => ({
-        ...cart,
-        books: cart.books.map((book) =>
-          book._id === bookId && book.quantity > 1
-            ? { ...book, quantity: book.quantity - 1 }
-            : book
+          book._id === bookId ? { ...book, quantity: quantity } : book
         ),
       }));
       updateTotalFee(updatedCarts, checkedBooks);
@@ -130,12 +100,10 @@ const Cart: React.FC = () => {
     setCheckedBooks((prev) => {
       const newCheckedState = { ...prev, [bookId]: !prev[bookId] };
 
-      // Check how many books under this publisher are still checked
       const allBooks =
         carts.find((cart) => cart.publisher === publisher)?.books || [];
       const allChecked = allBooks.every((book) => newCheckedState[book._id]);
 
-      // Update publisher checkbox state
       setCheckedPublishers((prevPublishers) => ({
         ...prevPublishers,
         [publisher]: allChecked,
@@ -177,12 +145,9 @@ const Cart: React.FC = () => {
           </Button>
         </div>
       ) : (
-        <div className="container text-center p-2 mb-5">
+        <div className="text-center py-2 mb-5">
           {carts.map((cart) => (
-            <div
-              key={cart._id}
-              className="container text-center p-2 my-3 border"
-            >
+            <div key={cart._id} className="text-center py-2 my-3 border">
               <PublisherCheckbox
                 publisher={cart.publisher}
                 isChecked={!!checkedPublishers[cart.publisher]}
@@ -194,16 +159,16 @@ const Cart: React.FC = () => {
               {cart.books.map((book) => (
                 <CartItem
                   key={book._id}
+                  userId={authUser._id}
                   book={book}
                   publisher={cart.publisher}
-                  onIncrement={incrementQuantity}
-                  onDecrement={decrementQuantity}
                   onDelete={handleDelete}
                   onQuantityChange={handleQuantityChange}
                   isChecked={!!checkedBooks[book._id]}
                   onCheckboxChange={() =>
                     handleCheckboxChange(book._id, cart.publisher)
                   }
+                  onCartUpdate={fetchCart}
                 />
               ))}
             </div>
