@@ -36,12 +36,16 @@ const Category = () => {
 
       const params = new URLSearchParams(location.search);
       const title = params.get("title") || "";
+      const from = parseInt(params.get("from") || "", 10);
+      const to = parseInt(params.get("to") || "", 10);
 
       try {
         const { books, totalPages } = await fetchCategoryById(
           id,
           currentPage,
-          title
+          title,
+          from,
+          to
         );
         setBooks(books);
         setTotalPages(totalPages);

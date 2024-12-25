@@ -30,12 +30,14 @@ export const fetchCategories = async (): Promise<Category[]> => {
 export const fetchCategoryById = async (
   id: string,
   page: number,
-  title?: string
+  title?: string,
+  from?: number,
+  to?: number
 ): Promise<FetchCategoryResponse> => {
   const response = await axios.get<FetchCategoryResponse>(
     `${API_URL}/cat/${id}?page=${page}${
       title ? `&title=${encodeURIComponent(title)}` : ""
-    }`
+    }${from ? `&from=${from}` : ""}${to ? `&to=${to}` : ""}`
   );
   return response.data;
 };

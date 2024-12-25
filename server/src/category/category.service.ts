@@ -23,6 +23,8 @@ export class CategoryService {
     id: string,
     currentPage: number,
     title?: string,
+    from?: number,
+    to?: number,
   ): Promise<any> {
     const category = await this.findOne(id);
     const limit = 12;
@@ -31,6 +33,13 @@ export class CategoryService {
 
     if (title) {
       query.title = { $regex: title, $options: 'i' };
+    }
+    if (from !== undefined) {
+      query.price = { ...query.price, $gte: from };
+    }
+
+    if (to !== undefined) {
+      query.price = { ...query.price, $lte: to };
     }
 
     const totalBooks = await this.bookModel.countDocuments(query).exec();
