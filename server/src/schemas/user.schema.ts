@@ -4,7 +4,7 @@ import * as mongooseDelete from 'mongoose-delete';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ required: true, unique: true })
   username: string;

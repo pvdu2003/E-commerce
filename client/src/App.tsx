@@ -12,10 +12,11 @@ import Category from "./pages/Category";
 import BookList from "./pages/book/BookList";
 import BookDetail from "./pages/book/BookDetail";
 import Cart from "./pages/Cart";
+import UserProfile from "./pages/user/UserProfile";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
-console.log(authUser);
+  console.log(authUser);
 
   return (
     <>
@@ -67,8 +68,14 @@ console.log(authUser);
         <Route
           path="/cart/list"
           element={
+            <Layout>{authUser ? <Cart /> : <Navigate to={"/login"} />}</Layout>
+          }
+        />
+        <Route
+          path="/user/profile"
+          element={
             <Layout>
-              {authUser ? <Cart /> : <Navigate to={"/login"} />}
+              {authUser ? <UserProfile /> : <Navigate to={"/login"} />}
             </Layout>
           }
         />
