@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar,
@@ -35,6 +35,16 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    // Clear title parameter on route change
+    const params = new URLSearchParams(location.search);
+    if (params.has("title")) {
+      params.delete("title");
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -48,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
     setSearchTerm(newSearchTerm);
 
     const params = new URLSearchParams(location.search);
-    if (newSearchTerm) {
+    if (newSearchTerm && location.pathname !== "/") {
       params.set("title", newSearchTerm);
     } else {
       params.delete("title");
@@ -65,6 +75,9 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
 
   const handleSearchSubmit = () => {
     const params = new URLSearchParams(location.search);
+    if (location.pathname === "/") {
+      return navigate(`/book/list?title=${encodeURIComponent(searchTerm)}`);
+    }
     if (searchTerm) {
       params.set("title", searchTerm);
     } else {
@@ -83,6 +96,12 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
     }
 
     navigate(`${location.pathname}?${params.toString()}`);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSearchSubmit(); // Call submit function on Enter key press
+    }
   };
 
   const isButtonDisabled = searchTerm.trim().length === 0;
@@ -139,6 +158,7 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
           size="small"
           value={searchTerm}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           sx={{
             borderRadius: "20px",
             mr: 1,
