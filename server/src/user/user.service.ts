@@ -1,10 +1,9 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import { CreateUserDto } from '../auth/dtos/create-user.dto';
-import { LoginUserDto } from '../auth/dtos/login.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
@@ -21,13 +20,13 @@ export class UsersService {
     return await this.userModel.findById(userId).select('-password').exec();
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<User | null> {
-    const user = await this.userModel.findOne({
-      username: loginUserDto.username,
-    });
-    if (user && (await bcrypt.compare(loginUserDto.password, user.password))) {
-      return user;
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userModel.findById(id).select('-password').exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return null;
+
+    Object.assign(user, updateUserDto);
+    return user.save();
   }
 }

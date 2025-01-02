@@ -8,6 +8,7 @@ import { Category, CategorySchema } from './schemas/category.schema';
 import { CategoryModule } from './category/category.module';
 import { BookModule } from './book/book.module';
 import { CartModule } from './cart/cart.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CartModule } from './cart/cart.module';
     CategoryModule,
     BookModule,
     CartModule,
+    UserModule,
   ],
 })
 export class AppModule {}
