@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/cart";
+const API_URL = `${import.meta.env.VITE_SERVER_URL}/cart`;
 
 export const fetchCartDetail = async (id: string) => {
   const response = await axios.get(`${API_URL}/${id}`);

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_SERVER_URL;
 // const api = axios.create({
 //     baseURL: 'http://localhost:3001', // Your NestJS API URL
 //     withCredentials: true, // Include cookies in requests

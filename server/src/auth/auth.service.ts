@@ -19,10 +19,28 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async validateUser(email: string, profileData: any): Promise<User> {
+    let user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      user = new this.userModel(profileData);
+      await user.save();
+    }
+
+    return user;
+  }
+  generateToken(user) {
+    return this.jwtService.sign({
+      id: user._id,
+      username: user.username,
+    });
+  }
+
   async register(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userModel.findOne({
       username: createUserDto.username,
     });
+
     if (existingUser) {
       throw new ConflictException('Username already exists');
     }
@@ -32,11 +50,13 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
     });
+
     return createdUser.save();
   }
 
   async login(loginDto: LoginUserDto): Promise<LoginResponseDto> {
     const user = await this.userModel.findOne({ username: loginDto.username });
+
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -45,6 +65,7 @@ export class AuthService {
       id: user._id,
       username: user.username,
     });
-    return { accessToken: accessToken, user: user };
+
+    return { accessToken, user };
   }
 }

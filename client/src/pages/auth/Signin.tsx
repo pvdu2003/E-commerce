@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { login } from "../../services/auth.service";
 import { useAuthContext } from "../../contexts/AuthContext";
+
 interface LoginData {
   username: string;
   password: string;
@@ -48,14 +49,34 @@ function Signin() {
         sessionStorage.setItem("user", JSON.stringify(resp.user));
         sessionStorage.setItem("token", resp.token);
         toast.success("Login successfully!!!", { autoClose: 1000 });
-        setTimeout(() => {
-          setAuthUser(resp.user);
-        }, 1500);
+        setAuthUser(resp.user);
       }
     } catch (error) {
       console.error("An error occurred during login.", error);
     }
   };
+
+  const googleAuth = () => {
+    window.location.href = `${import.meta.env.VITE_SERVER_URL}/auth/google`;
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    const user = urlParams.get("user");
+
+    if (user && token) {
+      sessionStorage.setItem("user", decodeURIComponent(user));
+      sessionStorage.setItem("token", token);
+      setAuthUser(JSON.parse(decodeURIComponent(user)));
+      toast.success("Logged in with Google successfully!");
+      window.location.href = "/";
+    } else {
+      console.log("no user and token provided");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -110,14 +131,14 @@ function Signin() {
             >
               Login
             </Button>
-            {/* <Button
+            <Button
               fullWidth
               variant="outlined"
               sx={{ mt: 3, mb: 2 }}
               onClick={googleAuth}
             >
               Login with Google
-            </Button> */}
+            </Button>
             <Grid container>
               <Grid item xs>
                 <Link href="/forgot-pwd" variant="body2">

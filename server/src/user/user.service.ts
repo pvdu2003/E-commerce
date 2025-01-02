@@ -17,6 +17,9 @@ export class UsersService {
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+  async findById(userId: string): Promise<User | null> {
+    return await this.userModel.findById(userId).select('-password').exec();
+  }
 
   async login(loginUserDto: LoginUserDto): Promise<User | null> {
     const user = await this.userModel.findOne({

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/book";
+const API_URL = `${import.meta.env.VITE_SERVER_URL}/book`;
 
 export const fetchBooks = async (
   page: number,

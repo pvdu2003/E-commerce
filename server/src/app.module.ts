@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { HomeModule } from './home/home.module';
@@ -10,7 +11,8 @@ import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/f8_education'),
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot(process.env.MONGODB_URL),
     MongooseModule.forFeature([{ name: Book.name, schema: BookSchema }]),
     MongooseModule.forFeature([
       { name: Category.name, schema: CategorySchema },
