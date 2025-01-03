@@ -27,3 +27,26 @@ export const updateProfile = async (
     throw error;
   }
 };
+
+export const changePwd = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+) => {
+  try {
+    const response = await axios.patch(`${API_URL}/change-password`, {
+      userId,
+      currentPassword,
+      newPassword,
+    });
+
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.response.data.message) {
+      return error.response.data.message;
+    }
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};

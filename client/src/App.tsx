@@ -14,6 +14,7 @@ import BookDetail from "./pages/book/BookDetail";
 import Cart from "./pages/Cart";
 import UserProfile from "./pages/user/UserProfile";
 import UserUpdate from "./pages/user/UserUpdate";
+import ChangePwd from "./pages/user/ChangePwd";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
@@ -85,6 +86,14 @@ const App: React.FC = () => {
           element={
             <Layout>
               {authUser ? <UserUpdate /> : <Navigate to={"/login"} />}
+            </Layout>
+          }
+        />
+        <Route
+          path="/user/change-password"
+          element={
+            <Layout>
+              {authUser ? <ChangePwd /> : <Navigate to={"/login"} />}
             </Layout>
           }
         />
