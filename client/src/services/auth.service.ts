@@ -79,10 +79,6 @@ export const login = async (username: string, password: string) => {
   }
 };
 
-export const logout = () => {
-  localStorage.removeItem("user");
-};
-
 export const getCurrentUser = () => {
   const userStr = localStorage.getItem("user");
   if (userStr) return JSON.parse(userStr);

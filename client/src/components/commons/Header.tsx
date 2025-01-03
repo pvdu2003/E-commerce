@@ -15,6 +15,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useAuthContext } from "../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 interface Category {
   _id: string;
@@ -34,9 +37,9 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { setAuthUser } = useAuthContext();
 
   useEffect(() => {
-    // Clear title parameter on route change
     const params = new URLSearchParams(location.search);
     if (params.has("title")) {
       params.delete("title");
@@ -100,11 +103,20 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      handleSearchSubmit(); // Call submit function on Enter key press
+      handleSearchSubmit();
     }
   };
 
   const isButtonDisabled = searchTerm.trim().length === 0;
+
+  const handleLogout = async () => {
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    toast.success("Logged out successfully!", { autoClose: 1000 });
+    setTimeout(() => {
+      setAuthUser(null);
+    }, 1500);
+  };
 
   return (
     <AppBar position="static" className="px-5">
@@ -196,6 +208,9 @@ const Header: React.FC<HeaderProps> = ({ categories, from, to, page = 1 }) => {
           </IconButton>
           <IconButton component={Link} to="/cart/list" color="inherit">
             <ShoppingCartIcon />
+          </IconButton>
+          <IconButton onClick={handleLogout} color="inherit">
+            <LogoutIcon />
           </IconButton>
         </Box>
       </Toolbar>
