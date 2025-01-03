@@ -20,7 +20,6 @@ export const updateProfile = async (
       phone_num,
       address,
     });
-
     return response.data;
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -39,14 +38,36 @@ export const changePwd = async (
       currentPassword,
       newPassword,
     });
-
     return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response.data.message) {
       return error.response.data.message;
     }
-    console.error("Error updating profile:", error);
+    console.error("Error changing password:", error);
     throw error;
+  }
+};
+
+export const resetPwd = async (username: string, email: string) => {
+  try {
+    const resp = await axios.post(`${API_URL}/forgot-password`, {
+      username,
+      email,
+    });
+    console.log(resp);
+
+    return { data: resp.data, status: resp.status };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.response) {
+      return {
+        message: error.response.data.message,
+        status: error.response.status,
+      };
+    } else {
+      console.error("Error resetting password:", error);
+      throw error;
+    }
   }
 };

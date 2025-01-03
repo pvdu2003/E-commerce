@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { ChangePwdDto } from './dtos/change-pwd.dto';
@@ -14,6 +14,14 @@ export class UserController {
   ) {
     await this.userService.changePassword(changePwdDto);
     return { message: 'Password changed successfully' };
+  }
+  @Post('forgot-password')
+  async forgotPwd(
+    @Body('email') email: string,
+    @Body('username') username: string,
+  ) {
+    const message = await this.userService.forgotPwd(username, email);
+    return { message };
   }
   @Patch(':id')
   async updateUser(

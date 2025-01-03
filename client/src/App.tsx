@@ -15,6 +15,7 @@ import Cart from "./pages/Cart";
 import UserProfile from "./pages/user/UserProfile";
 import UserUpdate from "./pages/user/UserUpdate";
 import ChangePwd from "./pages/user/ChangePwd";
+import ForgotPwd from "./pages/user/ForgotPwd";
 
 const App: React.FC = () => {
   const { authUser } = useAuthContext();
@@ -94,6 +95,14 @@ const App: React.FC = () => {
           element={
             <Layout>
               {authUser ? <ChangePwd /> : <Navigate to={"/login"} />}
+            </Layout>
+          }
+        />
+        <Route
+          path="/forgot-pwd"
+          element={
+            <Layout>
+              <ForgotPwd />
             </Layout>
           }
         />
