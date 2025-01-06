@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Button } from "@mui/material";
 import { useAuthContext } from "../contexts/AuthContext";
-import { fetchCartDetail } from "../services/cart.service";
-import axios from "axios";
+import { deleteCartItem, fetchCartDetail } from "../services/cart.service";
 import CartItem from "../components/cart/CartItem";
 import PublisherCheckbox from "../components/cart/PublisherCheckbox";
 import CartSummary from "../components/cart/CartSummary";
@@ -47,6 +46,7 @@ const Cart: React.FC = () => {
       console.error("Error fetching cart:", error);
     }
   };
+
   useEffect(() => {
     fetchCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,7 +60,7 @@ const Cart: React.FC = () => {
       return (
         acc +
         cart.books.reduce((bookAcc, book) => {
-          if (currentCheckedBooks[book._id]) {
+          if (currentCheckedBooks[book.book_id._id]) {
             return bookAcc + book.book_id.price * book.quantity;
           }
           return bookAcc;
@@ -77,7 +77,7 @@ const Cart: React.FC = () => {
       const updatedCarts = prevCarts.map((cart) => ({
         ...cart,
         books: cart.books.map((book) =>
-          book._id === bookId ? { ...book, quantity: quantity } : book
+          book.book_id._id === bookId ? { ...book, quantity: quantity } : book
         ),
       }));
       updateTotalFee(updatedCarts, checkedBooks);
@@ -85,9 +85,9 @@ const Cart: React.FC = () => {
     });
   };
 
-  const handleDelete = async (bookId: string) => {
+  const handleDelete = async (publisherIndex: number, bookId: string) => {
     try {
-      await axios.delete(`/cart/delete/${bookId}`);
+      await deleteCartItem(authUser._id, publisherIndex, bookId);
       const response = await fetchCartDetail(authUser._id);
       setCarts(response);
       updateTotalFee(response, checkedBooks);
@@ -102,7 +102,9 @@ const Cart: React.FC = () => {
 
       const allBooks =
         carts.find((cart) => cart.publisher === publisher)?.books || [];
-      const allChecked = allBooks.every((book) => newCheckedState[book._id]);
+      const allChecked = allBooks.every(
+        (book) => newCheckedState[book.book_id._id]
+      );
 
       setCheckedPublishers((prevPublishers) => ({
         ...prevPublishers,
@@ -119,7 +121,7 @@ const Cart: React.FC = () => {
 
     const newCheckedBooks = { ...checkedBooks };
     books.forEach((book) => {
-      newCheckedBooks[book._id] = isChecked;
+      newCheckedBooks[book.book_id._id] = isChecked;
     });
 
     setCheckedBooks(newCheckedBooks);
@@ -146,7 +148,7 @@ const Cart: React.FC = () => {
         </div>
       ) : (
         <div className="text-center py-2 mb-5">
-          {carts.map((cart) => (
+          {carts.map((cart, publisherIndex) => (
             <div key={cart._id} className="text-center py-2 my-3 border">
               <PublisherCheckbox
                 publisher={cart.publisher}
@@ -158,15 +160,16 @@ const Cart: React.FC = () => {
               <hr />
               {cart.books.map((book) => (
                 <CartItem
-                  key={book._id}
+                  key={book.book_id._id}
                   userId={authUser._id}
                   book={book}
                   publisher={cart.publisher}
+                  publisherIndex={publisherIndex}
                   onDelete={handleDelete}
                   onQuantityChange={handleQuantityChange}
-                  isChecked={!!checkedBooks[book._id]}
+                  isChecked={!!checkedBooks[book.book_id._id]}
                   onCheckboxChange={() =>
-                    handleCheckboxChange(book._id, cart.publisher)
+                    handleCheckboxChange(book.book_id._id, cart.publisher)
                   }
                   onCartUpdate={fetchCart}
                 />

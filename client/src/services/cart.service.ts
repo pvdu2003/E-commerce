@@ -34,3 +34,10 @@ export const updateCart = async (
     quantity,
   });
 };
+export const deleteCartItem = async (
+  user_id: string,
+  publisherIndex: number,
+  bookId: string
+) => {
+  await axios.delete(`${API_URL}/${user_id}/${publisherIndex}/${bookId}`);
+};

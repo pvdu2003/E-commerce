@@ -27,8 +27,9 @@ interface CartItemProps {
   book: Book;
   publisher: string;
   userId: string;
+  publisherIndex: number;
   onCartUpdate: () => void;
-  onDelete: (bookId: string) => void;
+  onDelete: (publisherIndex: number, bookId: string) => void;
   onQuantityChange: (bookId: string, quantity: number) => void;
   isChecked: boolean;
   onCheckboxChange: (bookId: string, publisher: string) => void;
@@ -38,6 +39,7 @@ const CartItem: React.FC<CartItemProps> = ({
   book,
   publisher,
   userId,
+  publisherIndex,
   onCartUpdate,
   onDelete,
   onQuantityChange,
@@ -80,11 +82,11 @@ const CartItem: React.FC<CartItemProps> = ({
   };
 
   return (
-    <Grid container alignItems="center" key={book._id}>
+    <Grid container alignItems="center" key={book.book_id._id}>
       <Grid item xs={1}>
         <Checkbox
           checked={isChecked}
-          onChange={() => onCheckboxChange(book._id, publisher)}
+          onChange={() => onCheckboxChange(book.book_id._id, publisher)}
         />
       </Grid>
       <Grid item xs={4} className="d-flex align-items-center">
@@ -140,7 +142,7 @@ const CartItem: React.FC<CartItemProps> = ({
         {(book.book_id.price * book.quantity).toFixed(2)}
       </Grid>
       <Grid item xs={1}>
-        <IconButton onClick={() => onDelete(book._id)}>
+        <IconButton onClick={() => onDelete(publisherIndex, book.book_id._id)}>
           <DeleteIcon color="error" />
         </IconButton>
       </Grid>
