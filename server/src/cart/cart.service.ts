@@ -102,35 +102,36 @@ export class CartService {
     await cart.save();
   }
 
-  async deleteFromCart(
+  async deleteCartItem(
     userId: string,
-    publisher: string,
+    publisherIndex: number,
     bookId: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const cart = await this.cartModel.findOne({
       user_id: new Types.ObjectId(userId),
     });
+    console.log('Cart of userid: ' + cart);
 
-    if (cart) {
-      const existingPublisherIndex = cart.carts.findIndex(
-        (item) => item.publisher === publisher,
-      );
+    if (!cart) return false;
 
-      if (existingPublisherIndex > -1) {
-        const bookIndex = cart.carts[existingPublisherIndex].books.findIndex(
-          (book) => book.book_id.toString() === bookId,
-        );
+    if (publisherIndex >= cart.carts.length) return false;
 
-        if (bookIndex > -1) {
-          cart.carts[existingPublisherIndex].books.splice(bookIndex, 1);
+    const publisherCart = cart.carts[publisherIndex];
+    const bookIndex = publisherCart.books.findIndex(
+      (book) => book.book_id.toString() === bookId,
+    );
+    if (bookIndex === -1) return false;
+    console.log('Book index: ' + bookIndex);
 
-          if (cart.carts[existingPublisherIndex].books.length === 0) {
-            cart.carts.splice(existingPublisherIndex, 1);
-          }
+    publisherCart.books.splice(bookIndex, 1);
 
-          await cart.save();
-        }
-      }
+    if (publisherCart.books.length === 0) {
+      cart.carts.splice(publisherIndex, 1);
     }
+
+    console.log('Cart after modifying: ' + cart);
+
+    await cart.save();
+    return true;
   }
 }

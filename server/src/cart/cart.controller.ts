@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateQuantityDto } from './dto/update-quantity.dto';
@@ -26,5 +35,25 @@ export class CartController {
     @Body() updateQuantityDto: UpdateQuantityDto,
   ) {
     return this.cartService.updateQuantity(userId, updateQuantityDto);
+  }
+
+  @Delete(':userId/:index/:bookId')
+  async deleteBookFromCart(
+    @Param('userId') userId: string,
+    @Param('index') index: string,
+    @Param('bookId') bookId: string,
+  ): Promise<{ message: string }> {
+    const publisherIndex = parseInt(index);
+
+    const result = await this.cartService.deleteCartItem(
+      userId,
+      publisherIndex,
+      bookId,
+    );
+    if (!result) {
+      throw new NotFoundException('Book not found or cart not found');
+    }
+
+    return { message: 'Book removed from cart successfully' };
   }
 }
